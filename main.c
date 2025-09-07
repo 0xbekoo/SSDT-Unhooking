@@ -205,7 +205,14 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 
 
 	/* Calculate the address of KiSystemCall64 */
-	KiSystemCall64 = KiSystemCall64Shadow - 0x4FBABB;
+	unsigned char KiSystemCall64Pattern[] = {0x0F, 0x01, 0xF8};
+	 // 0x4FBABB 
+	KiSystemCall64Shadow -= 0x4FBBBB;
+	KiSystemCall64 = FindThePattern((PVOID)KiSystemCall64Shadow, KiSystemCall64Pattern, 1024);
+	if (NULL == KiSystemCall64) {
+		DbgPrintEx(0, 0, "KiSystemCall64 was not found!\n");
+		return STATUS_NOT_FOUND;
+	}
 	DbgPrintEx(0, 0, "Calculated the address (KiSystemCall64): 0x%p\n", (PVOID)KiSystemCall64);
 
 	unsigned char pattern[] = { 0x4C, 0x8D, 0x15 };
