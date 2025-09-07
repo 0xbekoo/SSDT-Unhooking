@@ -46,7 +46,8 @@ These opcodes are belong to the first instruction of KiSystemCall64:
 
 This finding operation is performed by FindThePattern assembly function (see utils.asm). 
 
-#### **Finding the address of KeServiceDescriptorTable**
+### **Finding the address of KeServiceDescriptorTable**
+<hr>
 
 With the same idea, the table is finding via opcodes:
 
@@ -92,6 +93,7 @@ After the address is received, we dump it and calculate the address of NtLoadDri
 ```
 
 ### **Unhooking**
+<hr>
 
 After all these, we save the 16 bytes of NtLoadDriver before thejump code:
 
@@ -111,6 +113,7 @@ This is necessary to restore the original bytes of the routine.
 Unhooking is performed by an IOCTL. It calls HkRestoreFunction to restore the bytes. This function calls HkpReplaceCode16Bytes, which changes the bytes of the routine.
 
 ### **Executing The Project**
+<hr>
 
 Firstly, start the driver and check the results:
 
