@@ -68,7 +68,7 @@ This code targets the following instruction:
 KiSystemServiceRepeat is actually used to calculate the routine of the syscall in the windows kernel. Since it gets the address of the KeServiceDescriptorTable, we will focus on this routine. For more, you can check my blog **Reversing System Call Mechanism in Windows Kernel**: https://0xbekoo.github.io/blog/syscalls/#calculation-of-kernel-routine-kiservicesystemrepeat
 
 
-In ntoskrnl.exe, KeServiceDescriptorTable is used by a few routines:
+In ntoskrnl.exe, KeServiceDescriptorTable is used by several routines:
 
 <img src="/photos/photo4.png" />
 
