@@ -80,14 +80,14 @@ static NTSTATUS HkpReplaceCode16Bytes(
 _IRQL_requires_max_(APC_LEVEL)
 NTSTATUS HkRestoreFunction(
 	_In_ PVOID	 HookedFunction,
-	_In_ PVOID	 OriginalTrampoline
+	_In_ PVOID	 OriginalOriginalBytes
 )
 {
 	NTSTATUS Status = STATUS_SUCCESS;
 	PUCHAR OriginalBytes;
 	LARGE_INTEGER DelayInterval;
 
-	OriginalBytes = (PUCHAR)OriginalTrampoline - INTERLOCKED_EXCHANGE_SIZE;
+	OriginalBytes = (PUCHAR)OriginalOriginalBytes - INTERLOCKED_EXCHANGE_SIZE;
 	Status = HkpReplaceCode16Bytes(HookedFunction, OriginalBytes);
 
 	/* Wait 10ms */
@@ -206,7 +206,6 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 
 	/* Calculate the address of KiSystemCall64 */
 	unsigned char KiSystemCall64Pattern[] = {0x0F, 0x01, 0xF8};
-	 // 0x4FBABB 
 	KiSystemCall64Shadow -= 0x4FBBBB;
 	KiSystemCall64 = FindThePattern((PVOID)KiSystemCall64Shadow, KiSystemCall64Pattern, 1024);
 	if (NULL == KiSystemCall64) {
@@ -245,14 +244,14 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 		Since there is no code for hooking in the project, a jmp code will be added via windbg
 		In this case, before execute HkRestoreFunction, we will save the 16 bytes of NtLoadDriver
 	*/
-	PUCHAR Trampoline = ExAllocatePoolWithTag(NonPagedPool, INTERLOCKED_EXCHANGE_SIZE + FULL_DETOUR_SIZE + 20, TAG);
-	if (NULL == Trampoline)
+	PUCHAR OriginalBytes = ExAllocatePoolWithTag(NonPagedPool, INTERLOCKED_EXCHANGE_SIZE + FULL_DETOUR_SIZE + 20, TAG);
+	if (NULL == OriginalBytes)
 	{
 		return STATUS_INSUFFICIENT_RESOURCES;
 	}
-	RtlCopyMemory(Trampoline, G_NtLoadDriverAddr, INTERLOCKED_EXCHANGE_SIZE);
-	RtlCopyMemory(Trampoline + INTERLOCKED_EXCHANGE_SIZE, G_NtLoadDriverAddr, 20);
-	OriginalNtLoadDriver = Trampoline + INTERLOCKED_EXCHANGE_SIZE;
+	RtlCopyMemory(OriginalBytes, G_NtLoadDriverAddr, INTERLOCKED_EXCHANGE_SIZE);
+	RtlCopyMemory(OriginalBytes + INTERLOCKED_EXCHANGE_SIZE, G_NtLoadDriverAddr, 20);
+	OriginalNtLoadDriver = OriginalBytes + INTERLOCKED_EXCHANGE_SIZE;
 
 	DriverObject->MajorFunction[IRP_MJ_CREATE] = IoCreateClose;
 	DriverObject->MajorFunction[IRP_MJ_CLOSE] = IoCreateClose;
