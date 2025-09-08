@@ -99,17 +99,17 @@ After the address is received, we dump it and calculate the address of NtLoadDri
 ### **Unhooking**
 <hr>
 
-After all these, we save the 16 bytes of NtLoadDriver before thejump code:
+After all these, we save the 16 bytes of NtLoadDriver before the jump code:
 
 ```c
-	PUCHAR Trampoline = ExAllocatePoolWithTag(NonPagedPool, INTERLOCKED_EXCHANGE_SIZE + FULL_DETOUR_SIZE + 20, TAG);
-	if (NULL == Trampoline)
+	PUCHAR OriginalBytes = ExAllocatePoolWithTag(NonPagedPool, INTERLOCKED_EXCHANGE_SIZE + FULL_DETOUR_SIZE + 20, TAG);
+	if (NULL == OriginalBytes)
 	{
 		return STATUS_INSUFFICIENT_RESOURCES;
 	}
-	RtlCopyMemory(Trampoline, G_NtLoadDriverAddr, INTERLOCKED_EXCHANGE_SIZE);
-	RtlCopyMemory(Trampoline + INTERLOCKED_EXCHANGE_SIZE, G_NtLoadDriverAddr, 20);
-	OriginalNtLoadDriver = Trampoline + INTERLOCKED_EXCHANGE_SIZE;
+	RtlCopyMemory(OriginalBytes, G_NtLoadDriverAddr, INTERLOCKED_EXCHANGE_SIZE);
+	RtlCopyMemory(OriginalBytes + INTERLOCKED_EXCHANGE_SIZE, G_NtLoadDriverAddr, 20);
+	OriginalNtLoadDriver = OriginalBytes + INTERLOCKED_EXCHANGE_SIZE;
 ```
 
 This is necessary to restore the original bytes of the routine. 
